@@ -20,6 +20,7 @@ def deduplicate(input.sam, output.sam, STL96.txt):
     counts = 0
     duplicates = 0
     invalidUMI = 0
+    These variables are not strictly needed, but I will initialize them for checking purposese
 
     validUMIs = set()
     open STL96.txt
@@ -66,7 +67,7 @@ def deduplicate(input.sam, output.sam, STL96.txt):
         close output sam
     close input sam
 
-    return coutns, duplicates, invalidUMI
+    return coutns, duplicates, invalidUMI #validation check, not needed
                     
 
 def getUMI(qname):
