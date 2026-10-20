@@ -35,6 +35,7 @@ def deduplicate(input.sam, output.sam, STL96.txt):
                     continue
                 
                 record = split line by tabs and record QNAME, RNAME, FLAG, POS, and CIGAR as separate variables
+                origQNAME = record[0] --> store for writing out since I'm splitting QNAME
                 QNAME = record[0]
                 RNAME = record[2]
                 FLAG = record[1]
@@ -42,6 +43,7 @@ def deduplicate(input.sam, output.sam, STL96.txt):
                 CIGAR = record[5]
                     
                     if RNAME doesnt match current Chromosome, replace current with RNAME
+                    clear seen
                     
                     umi = end of QNAME (after the last semi colon). Call getUMI function.
                     check if umi is valid compare to STL96.txt. Increase invalidUMI count if it isn't. continue
