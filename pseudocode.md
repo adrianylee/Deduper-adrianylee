@@ -68,6 +68,7 @@ def deduplicate(input.sam, output.sam, STL96.txt):
         
         close output sam
     close input sam
+    #output must be valid format
 
     return coutns, duplicates, invalidUMI #validation check, not needed
                     
@@ -101,6 +102,20 @@ def correctedPosition(POS, CIGAR, strand):
         correctedPosition = POS + referenceLength - 1 + trailing S (or 0 if one doesn't exist, soft clipping must end)
 
     return correctedPosition
+
+
+def args()
+    argparse includes -f, -o, -u, -h
+    #code must run in a single step ./<name of program>.py -u STRL96.txt -f <in.sam> -o <out.sam>
+
+def main()
+    python script needs to be at the top level of the repo
+    run in a single step
+    output must be properly formatted with header
+    finish the survey on Canvas on completion
+    remember to use /usr/bin/tim -v and report outputs in Canvas
+    Run script on /projects/bgmp/shared/deduper/C1_SE_uniqAlign.sam
+    
 
 
                     
