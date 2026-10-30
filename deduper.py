@@ -17,16 +17,17 @@ def deduplicate(input_sam, output_sam, umi_file):
             if umi:
                 validUMIs.add(umi)
 
-    with open(input_sam, "r") as input_handle:
-        with open(output_sam, "w") as output_handle:
-            for line in input_handle:
+    with open(input_sam, "r") as fi:
+        with open(output_sam, "w") as fo:
+            for line in fi:
 
                 if line.startswith("@"):
-                    output_handle.write(line)
+                    fo.write(line)
                     continue
 
                 record = line.rstrip("\n").split("\t")
 
+                origQNAME = record[0]
                 QNAME = record[0]
                 FLAG = int(record[1])
                 RNAME = record[2]
@@ -34,7 +35,7 @@ def deduplicate(input_sam, output_sam, umi_file):
                 CIGAR = record[5]
 
                 if FLAG & 4:
-                    output_handle.write(line)
+                    fo.write(line)
                     counts += 1
                     continue
 
@@ -54,6 +55,20 @@ def deduplicate(input_sam, output_sam, umi_file):
                     strand = "forward"
 
                 corrected_position = correctedPosition(POS, CIGAR, strand)    
+
+                isItDuplicate = [RNAME, strand, umi, corrected_position]
+
+                if isItDuplicate in seen:
+                    duplicates += 1
+                    continue
+
+                seen.add([RNAME, strand, umi, corrected_position])
+                output_sam.write(origQNAME, current, strand, umi, corrected_position)
+                counts += 1
+
+        fo.close()
+    fi.close()
+
     return
     
 def getUMI(qname):
@@ -73,8 +88,6 @@ def correctedPosition(pos, cigar, strand):
         else:
             CIGARsets.append([int(current), character])
             current = ""
-
-
 
     leading = 0
     trailing = 0
@@ -122,13 +135,14 @@ def get_args():
 
 if __name__ == "__main__":
 
-    correctedPosition(100, "50M", "forward")
-    correctedPosition(100, "50M", "reverse")
-    correctedPosition(100, "5S45M", "forward")
-    correctedPosition(100, "45M5S", "reverse")
-    correctedPosition(100, "5S20M2I10M3D15M4S", "forward")
-    correctedPosition(100, "5S20M2I10M3D15M4S", "reverse")
-    correctedPosition(100, "5H5S45M", "forward")
-    correctedPosition(100, "45M5S5H", "reverse")
-    #args = get_args()
-    #deduplicate(args.input, args.output, args.umi)
+    #correctedPosition(100, "50M", "forward")
+    #correctedPosition(100, "50M", "reverse")
+    #correctedPosition(100, "5S45M", "forward")
+    #correctedPosition(100, "45M5S", "reverse")
+    #correctedPosition(100, "5S20M2I10M3D15M4S", "forward")
+    #correctedPosition(100, "5S20M2I10M3D15M4S", "reverse")
+    #correctedPosition(100, "5H5S45M", "forward")
+    #correctedPosition(100, "45M5S5H", "reverse")
+
+    args = get_args()
+    deduplicate(args.input, args.output, args.umi)
