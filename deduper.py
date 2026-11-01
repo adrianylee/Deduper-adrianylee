@@ -8,11 +8,13 @@ def deduplicate(input_sam, output_sam, umi_file):
     counts = 0
     duplicates = 0
     invalidUMI = 0
+    headers = 0
+    unmapped = 0
 
     validUMIs = set()
 
-    with open(umi_file, "r") as umi_handle:
-        for line in umi_handle:
+    with open(umi_file, "r") as fo:
+        for line in fo:
             umi = line.strip()
             if umi:
                 validUMIs.add(umi)
@@ -23,9 +25,11 @@ def deduplicate(input_sam, output_sam, umi_file):
 
                 if line.startswith("@"):
                     fo.write(line)
+                    headers += 1
                     continue
 
-                record = line.rstrip("\n").split("\t")
+                record = line.strip().split("\t")
+                print(record)
 
                 origQNAME = record[0]
                 QNAME = record[0]
@@ -36,7 +40,7 @@ def deduplicate(input_sam, output_sam, umi_file):
 
                 if FLAG & 4:
                     fo.write(line)
-                    counts += 1
+                    unmapped += 1
                     continue
 
                 if RNAME != current:
@@ -54,22 +58,22 @@ def deduplicate(input_sam, output_sam, umi_file):
                 else:
                     strand = "forward"
 
-                corrected_position = correctedPosition(POS, CIGAR, strand)    
+                corrected_position = correctedPosition(POS, CIGAR, strand)
 
-                isItDuplicate = [RNAME, strand, umi, corrected_position]
+                isItDuplicate = (RNAME, strand, umi, corrected_position)
 
                 if isItDuplicate in seen:
                     duplicates += 1
                     continue
 
-                seen.add([RNAME, strand, umi, corrected_position])
-                output_sam.write(origQNAME, current, strand, umi, corrected_position)
+                seen.add(isItDuplicate)
+                fo.write(line)
                 counts += 1
 
         fo.close()
     fi.close()
 
-    return
+    return counts, duplicates, invalidUMI, headers, unmapped
     
 def getUMI(qname):
     fields = qname.split(":")
@@ -96,22 +100,18 @@ def correctedPosition(pos, cigar, strand):
 
     for length, operation in CIGARsets:
 
-        if operation == "H":
-            continue
         if operation == "S":
             leading = length
         break
 
     for length, operation in reversed(CIGARsets):
-        if operation == "H":
 
-            continue
         if operation == "S":
             trailing = length
         break
 
     for length, operation in CIGARsets:
-        if operation in "MDN=X":
+        if operation in "MDN=X": #Leslie said = and X not inthe final file
             referenceLength += length
 
     if strand == "forward":
@@ -121,28 +121,27 @@ def correctedPosition(pos, cigar, strand):
         corrected = pos + referenceLength - 1 + trailing
         print(f"rev: {pos} + {referenceLength} - 1 + {trailing} = {corrected}")
 
-    return pos + referenceLength - 1 + trailing    
+    return corrected   
     
 
 def get_args():
     '''gets arguments'''
     parser = argparse.ArgumentParser()
-    parser.add_argument("-f","--file", default="testInput.sam")
-    parser.add_argument("-u","--umi", default="STL96.txt")
-    parser.add_argument("-o","--output", default="test.txt")
-    parser.add_argument("-h", "--help")
+    parser.add_argument("-f","--file", default="testInput.sam", help="filepath to SORTED input sam")
+    parser.add_argument("-u","--umi", default="STL96.txt", help="filepath to UMI file list (line-separated)")
+    parser.add_argument("-o","--output", default="test.txt", help="filepath to OUTPUT file (name)")
+    #parser.add_argument("-h", "--help")
     return parser.parse_args()
 
 if __name__ == "__main__":
 
-    #correctedPosition(100, "50M", "forward")
-    #correctedPosition(100, "50M", "reverse")
-    #correctedPosition(100, "5S45M", "forward")
-    #correctedPosition(100, "45M5S", "reverse")
-    #correctedPosition(100, "5S20M2I10M3D15M4S", "forward")
-    #correctedPosition(100, "5S20M2I10M3D15M4S", "reverse")
-    #correctedPosition(100, "5H5S45M", "forward")
-    #correctedPosition(100, "45M5S5H", "reverse")
+    #correctedPosition(100, "50M", "forward") #100
+    #correctedPosition(100, "50M", "reverse") #149
+    #correctedPosition(100, "5S45M", "forward") #95
+    #correctedPosition(100, "45M5S", "reverse") #149
+    #correctedPosition(100, "5S20M2I10M3D15M4S", "forward") #95
+    #correctedPosition(100, "5S20M2I10M3D15M4S", "reverse") #151
 
     args = get_args()
-    deduplicate(args.input, args.output, args.umi)
+    counts, duplicates, invalidUMI, headers, unmapped = deduplicate(args.file, args.output, args.umi)
+    print(f"header: {headers}, unique reads: {counts}, wrong UMIs: {invalidUMI}, duplicates: {duplicates}, unmapped: {unmapped}")
