@@ -1,6 +1,7 @@
 import argparse
 
 def deduplicate(input_sam, output_sam, umi_file):
+    """"""
     
     seen = set()
     current = None

@@ -1,0 +1,11 @@
+[workspace]
+authors = ["Adrian Lee <aylee@n0349.talapas.uoregon.edu>"]
+channels = ["conda-forge", "bioconda"]
+name = "Deduper"
+platforms = ["linux-64"]
+version = "0.1.0"
+
+[tasks]
+
+[dependencies]
+samtools = ">=1.25,<2"
