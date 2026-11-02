@@ -29,7 +29,7 @@ def deduplicate(input_sam, output_sam, umi_file):
                     continue
 
                 record = line.strip().split("\t")
-                print(record)
+                #print(record)
 
                 origQNAME = record[0]
                 QNAME = record[0]
@@ -83,7 +83,7 @@ def correctedPosition(pos, cigar, strand):
     CIGARsets = []
     current = ""
 
-    print(f"POS: {pos}, CIGAR: {cigar}, Strand: {strand}")
+    #print(f"POS: {pos}, CIGAR: {cigar}, Strand: {strand}")
 
     for character in cigar:
         if character.isdigit():
@@ -111,15 +111,15 @@ def correctedPosition(pos, cigar, strand):
         break
 
     for length, operation in CIGARsets:
-        if operation in "MDN=X": #Leslie said = and X not inthe final file
+        if operation in "MDN=X": #Leslie said = and X not inthe final file. Also successfully ignores insertions because it consumes read, not reference
             referenceLength += length
 
     if strand == "forward":
         corrected = pos - leading
-        print(f"forward: {pos} - {leading} = {corrected}")
+        #print(f"forward: {pos} - {leading} = {corrected}")
     else:
         corrected = pos + referenceLength - 1 + trailing
-        print(f"rev: {pos} + {referenceLength} - 1 + {trailing} = {corrected}")
+        #print(f"rev: {pos} + {referenceLength} - 1 + {trailing} = {corrected}")
 
     return corrected   
     

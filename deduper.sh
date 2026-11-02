@@ -6,5 +6,12 @@
 #SBATCH --job-name=deduper                # optional: job name
 #SBATCH --output=/projects/bgmp/aylee/bioinfo/Bi624/Deduper/20261101_deduper.%j.out
 
-/usr/bin/time -v samtools sort /projects/bgmp/shared/deduper/C1_SE_uniqAlign.sam -o C1_SE_uniqAlign.sorted.sam 
-/user/bin/time -v deduper.py -f C1_SE_uniqAlign.sorted.sam -u STL96.txt -o DEDUPED.C1_SE_uniqAlign.sorted.sam
+cd /projects/bgmp/aylee/bioinfo/Bi624/Deduper
+
+/usr/bin/time -v samtools sort /projects/bgmp/shared/deduper/C1_SE_uniqAlign.sam \
+    -o /projects/bgmp/aylee/bioinfo/Bi624/Deduper/C1_SE_uniqAlign.sorted.sam 
+
+/usr/bin/time -v python /projects/bgmp/aylee/bioinfo/Bi624/Deduper/deduper.py \
+    -u /projects/bgmp/aylee/bioinfo/Bi624/Deduper/STL96.txt \
+    -f /projects/bgmp/aylee/bioinfo/Bi624/Deduper/C1_SE_uniqAlign.sorted.sam \
+    -o /projects/bgmp/aylee/bioinfo/Bi624/Deduper/DEDUPED.C1_SE_uniqAlign.sorted.sam
