@@ -11,7 +11,7 @@ cd /projects/bgmp/aylee/bioinfo/Bi624/Deduper
 /usr/bin/time -v samtools sort /projects/bgmp/shared/deduper/C1_SE_uniqAlign.sam \
     -o /projects/bgmp/aylee/bioinfo/Bi624/Deduper/C1_SE_uniqAlign.sorted.sam 
 
-/usr/bin/time -v python /projects/bgmp/aylee/bioinfo/Bi624/Deduper/deduper.py \
+/usr/bin/time -v python /projects/bgmp/aylee/bioinfo/Bi624/Deduper/Lee_deduper.py \
     -u /projects/bgmp/aylee/bioinfo/Bi624/Deduper/STL96.txt \
     -f /projects/bgmp/aylee/bioinfo/Bi624/Deduper/C1_SE_uniqAlign.sorted.sam \
     -o /projects/bgmp/aylee/bioinfo/Bi624/Deduper/DEDUPED.C1_SE_uniqAlign.sorted.sam
