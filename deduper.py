@@ -1,7 +1,9 @@
 import argparse
 
 def deduplicate(input_sam, output_sam, umi_file):
-    """"""
+    """tracks all statistics of the deduplicate python function. Strips sorted SAM line by line 
+    Uses split to correctly organize each line of SAM and writes all unique reads to target output file.
+    Adds unique reads to a set for efficient processing. Calls helper functions to complete the deduplication"""
     
     seen = set()
     current = None
@@ -77,10 +79,13 @@ def deduplicate(input_sam, output_sam, umi_file):
     return counts, duplicates, invalidUMI, headers, unmapped
     
 def getUMI(qname):
+    """extracts the UMI from QNAME(using split)"""
     fields = qname.split(":")
     return fields[-1]
 
 def correctedPosition(pos, cigar, strand):
+    """determines the actual (correct) position of any reads taking into account 
+    forward/reverse strands, soft clipping, and CIGAR reads"""
     CIGARsets = []
     current = ""
 
@@ -126,7 +131,7 @@ def correctedPosition(pos, cigar, strand):
     
 
 def get_args():
-    '''gets arguments'''
+    '''gets arguments. makes sure to have file, umi, output, and help arguments'''
     parser = argparse.ArgumentParser()
     parser.add_argument("-f","--file", default="testInput.sam", help="filepath to SORTED input sam")
     parser.add_argument("-u","--umi", default="STL96.txt", help="filepath to UMI file list (line-separated)")
@@ -135,6 +140,7 @@ def get_args():
     return parser.parse_args()
 
 if __name__ == "__main__":
+
 
     #correctedPosition(100, "50M", "forward") #100
     #correctedPosition(100, "50M", "reverse") #149
